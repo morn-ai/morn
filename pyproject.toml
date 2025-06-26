@@ -1,0 +1,22 @@
+[project]
+name = "pypi-package-name"
+version = "0.0.1"
+readme = "README.md"
+
+requires-python = ">=3.9"
+
+dependencies = [
+    "fastapi",
+    "uvicorn",
+]
+
+[project.urls]
+Homepage = "https://github.com/git-organization-name/git-repo-name"
+Repository = "https://github.com/git-organization-name/git-repo-name"
+Documentation = "https://github.com/git-organization-name/git-repo-name#readme"
+
+[tool.mypy]
+python_version = "3.9"
+
+[tool.ruff]
+line-length = 120
