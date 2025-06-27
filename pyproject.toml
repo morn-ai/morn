@@ -1,5 +1,5 @@
 [project]
-name = "pypi-package-name"
+name = "morn-agent"
 version = "0.0.1"
 readme = "README.md"
 
@@ -11,9 +11,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/git-organization-name/git-repo-name"
-Repository = "https://github.com/git-organization-name/git-repo-name"
-Documentation = "https://github.com/git-organization-name/git-repo-name#readme"
+Homepage = "https://github.com/morn-ai/morn-agent"
+Repository = "https://github.com/morn-ai/morn-agent"
+Documentation = "https://github.com/morn-ai/morn-agent#readme"
 
 [tool.mypy]
 python_version = "3.9"
