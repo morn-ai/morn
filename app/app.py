@@ -6,7 +6,7 @@ from fastapi import FastAPI
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from logging_config import configure_logging
+from app.logging_config import configure_logging
 
 configure_logging()
 
