@@ -10,8 +10,8 @@ class AgentConfig:
     morn_admin_username: str = os.getenv("MORN_ADMIN_USERNAME", "admin")
     morn_admin_password: str = os.getenv("MORN_ADMIN_PASSWORD")
     # morn conf config
-    morn_conf_dir: str = os.getenv("MORN_CONF_DIR", os.path.join(Path(__file__).parent, "..", "..", "conf"))
-    morn_agent_conf_file: str = os.path.join(morn_conf_dir, "agent-conf.yaml")
-    morn_mcp_conf_file: str = os.path.join(morn_conf_dir, "mcp-servers.yaml")
-    morn_prompt_dir: str = os.path.join(morn_conf_dir, "prompts")
+    morn_conf_dir: Path = Path(os.getenv("MORN_CONF_DIR", Path(__file__).parents[2] / "conf"))
+    morn_agent_conf_file: Path = morn_conf_dir / "agent-conf.yaml"
+    morn_mcp_conf_file: Path = morn_conf_dir / "mcp-servers.yaml"
+    morn_prompt_dir: Path = morn_conf_dir / "prompts"
     openai_model: str = os.getenv("OPENAI_MODEL", "deepseek-chat")
