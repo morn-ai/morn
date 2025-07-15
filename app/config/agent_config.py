@@ -15,3 +15,7 @@ class AgentConfig:
     morn_mcp_conf_file: Path = morn_conf_dir / "mcp-servers.yaml"
     morn_prompt_dir: Path = morn_conf_dir / "prompts"
     openai_model: str = os.getenv("OPENAI_MODEL", "deepseek-chat")
+    # chat llm config
+    model_name: str = os.getenv("MODEL_NAME", "deepseek-chat")
+    openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
+    openai_base_url: str = os.getenv("OPENAPI_API_BASE", "")
