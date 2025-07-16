@@ -51,7 +51,7 @@ async def get_current_user(credentials: Annotated[HTTPAuthorizationCredentials, 
     return verify_token(credentials.credentials)
 
 
-@router.post("/login", response_model=Token)
+@router.post("/api/v1/login", response_model=Token)
 async def login_for_access_token(body: UserLogin):
     """User login to get access token"""
     if body.username == config.morn_admin_username and body.password == config.morn_admin_password:

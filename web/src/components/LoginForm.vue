@@ -63,9 +63,11 @@
 <script setup lang="ts">
 import { ref, reactive } from "vue";
 import { useMessage } from "naive-ui";
+import { useRouter } from "vue-router";
 import { PersonOutline, LockClosedOutline } from "@vicons/ionicons5";
 
 const message = useMessage();
+const router = useRouter();
 
 // 表单引用
 const formRef = ref();
@@ -117,7 +119,7 @@ const handleSubmit = (e: MouseEvent) => {
   formRef.value?.validate(async (errors: any) => {
     if (!errors) {
       loading.value = true;
-      const url = import.meta.env.MODE === "development" ? '/auth/login' : '/login'
+      const url = '/api/v1/login'
       const result = await (
         await fetch(url, {
           method: "POST",
@@ -130,12 +132,19 @@ const handleSubmit = (e: MouseEvent) => {
           }),
         })
       ).json();
+      console.log('Login response:', result);
       if (result.access_token) {
         localStorage.setItem("access_token", result.access_token);
+        console.log('Token saved to localStorage:', result.access_token);
+        console.log('Token length:', result.access_token.length);
+      } else {
+        console.error('No access_token in response');
       }
       // 模拟登录请求
       loading.value = false;
       message.success("登录成功！");
+      // 跳转到dashboard
+      router.push('/dashboard');
     } else {
       message.error("请检查输入信息");
     }
