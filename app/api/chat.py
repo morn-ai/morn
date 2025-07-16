@@ -6,18 +6,20 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from sse_starlette import EventSourceResponse
 
-from app.config.agent_config import AgentConfig
-from app.schemas.chat import ChatCompletionRequest
-from app.schemas.auth import TokenData
+from app.agents.react_agent import MornReActAgent
 from app.api.auth import require_auth
+from app.config.agent_config import AgentConfig
+from app.schemas.auth import TokenData
+from app.schemas.chat import ChatCompletionRequest, ChatRequest
 
 router = APIRouter()
 config = AgentConfig()
 
+
 @router.post("/api/v1/chat/completions")
 async def chat_completion(
-    request: ChatCompletionRequest,
-    current_user: Annotated[TokenData, Depends(require_auth)]
+        request: ChatCompletionRequest,
+        current_user: Annotated[TokenData, Depends(require_auth)]
 ):
     logging.info(f"receive chat request: {request}")
 
@@ -57,18 +59,18 @@ async def stream_response(request: ChatCompletionRequest) -> AsyncGenerator[dict
     async with httpx.AsyncClient() as client:
         try:
             async with client.stream(
-                "POST",
-                f"{config.openai_api_base}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {config.openai_api_key}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": config.openai_model,
-                    "messages": [msg.model_dump() for msg in request.messages],
-                    "stream": True
-                },
-                timeout=30.0
+                    "POST",
+                    f"{config.openai_api_base}/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {config.openai_api_key}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": config.openai_model,
+                        "messages": [msg.model_dump() for msg in request.messages],
+                        "stream": True
+                    },
+                    timeout=30.0
             ) as response:
                 response.raise_for_status()
 
@@ -102,3 +104,19 @@ async def stream_response(request: ChatCompletionRequest) -> AsyncGenerator[dict
                 "event": "error",
                 "data": json.dumps({"error": "Internal server error"})
             }
+
+
+agent = MornReActAgent()
+
+
+@router.post("/api/v1/chat")
+async def chat(
+        request: ChatRequest,
+        current_user: Annotated[TokenData, Depends(require_auth)]
+):
+    logging.info(f"receive chat request: {request}")
+
+    async def event_generator():
+        logging.info("Starting event generator")
+
+    return EventSourceResponse(event_generator())

@@ -4,6 +4,7 @@ from pathlib import Path
 
 class AgentConfig:
     # server config
+    morn_host: str = os.getenv("MORN_HOST", "localhost")
     morn_port: int = int(os.getenv("MORN_PORT", "8000"))
     # auth config
     morn_auth_mode: str = os.getenv("MORN_AUTH_MODE", "jwt")

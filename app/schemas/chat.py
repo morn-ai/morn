@@ -28,3 +28,7 @@ class ChatCompletionChunk(BaseModel):
     created: int
     model: str
     choices: List[dict]
+
+
+class ChatRequest(BaseModel):
+    messages: List[ChatMessage]
