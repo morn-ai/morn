@@ -1,0 +1,35 @@
+# Git
+.git/
+.gitignore
+
+# macOS
+**/.DS_Store
+
+# IDE
+.idea/**
+!.idea/icon.png
+.vscode/**
+!.vscode/extensions.json
+**.iml
+
+# Python virtual environments
+venv/
+
+# Python Environments
+**/.env
+
+# Python bytecode
+__pycache__/
+
+# Python packaging
+*.egg-info/
+build/
+dist/
+
+# MyPy
+**/.mypy_cache
+
+# Ruff
+**/.ruff_cache
+
+app.log

@@ -8,6 +8,7 @@ requires-python = ">=3.11"
 dependencies = [
     "fastapi",
     "httpx",
+    "hugegraph-python",
     "python-jose[cryptography]",
     "sse-starlette",
     "types-python-jose",
