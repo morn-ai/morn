@@ -1,0 +1,15 @@
+# macOS
+**/.DS_Store
+
+# IDE
+.idea/**
+!.idea/icon.png
+.vscode/**
+!.vscode/extensions.json
+**.iml
+
+# npm
+node_modules
+
+# Vite
+dist/

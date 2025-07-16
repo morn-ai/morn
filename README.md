@@ -1,4 +1,4 @@
-# Morn Agent
+# Morn
 
 English | [简体中文](README_CN.md)
 
@@ -6,7 +6,7 @@ English | [简体中文](README_CN.md)
 
 ### Prerequisites
 
-- Python 3.9 or higher
+- Python 3.11 or higher
 - [uv](https://github.com/astral-sh/uv) (recommended) or pip
 
 ### Installation
