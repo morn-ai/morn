@@ -15,8 +15,8 @@ English | [简体中文](README_CN.md)
 
 ```bash
 # Clone the repository
-git clone https://github.com/morn-ai/morn-agent.git
-cd morn-agent
+git clone https://github.com/morn-ai/morn.git
+cd morn
 
 # Install dependencies
 uv sync
@@ -29,8 +29,8 @@ uv run python app/app.py
 
 ```bash
 # Clone the repository
-git clone https://github.com/morn-ai/morn-agent.git
-cd morn-agent
+git clone https://github.com/morn-ai/morn.git
+cd morn
 
 # Install dependencies
 pip install -e .
@@ -38,3 +38,112 @@ pip install -e .
 # Run the development server
 python app/app.py
 ```
+
+## Authentication
+
+This project implements a JWT (JSON Web Token) based authentication system that supports login token acquisition and API access protection.
+
+### Configuration
+
+Set the following environment variables:
+
+```bash
+# Authentication mode (none | jwt)
+MORN_AUTH_MODE=jwt
+
+# Admin credentials
+MORN_ADMIN_USERNAME=admin
+MORN_ADMIN_PASSWORD=your_password
+
+# JWT configuration
+JWT_SECRET_KEY=your-secret-key-change-in-production
+JWT_ALGORITHM=HS256
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=120
+```
+
+### API Endpoints
+
+#### 1. User Login
+
+**POST** `/login`
+
+Request body:
+```json
+{
+  "username": "admin",
+  "password": "your_password"
+}
+```
+
+Response:
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer",
+  "expires_in": 7200
+}
+```
+
+#### 2. Get Current User Information
+
+**GET** `/me`
+
+Include Bearer Token in request header:
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+Response:
+```json
+{
+  "username": "admin"
+}
+```
+
+#### 3. Protected APIs
+
+All APIs that require authentication need to include a Bearer Token in the request header.
+
+For example, the chat API:
+**POST** `/api/v1/chat/completions`
+
+Request headers:
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+```
+
+### Usage in Code
+
+#### Protecting Routes
+
+Add dependency to routes that require authentication:
+
+```python
+from app.api.auth import require_auth
+from app.schemas.auth import TokenData
+from typing import Annotated
+from fastapi import Depends
+
+@router.post("/protected-endpoint")
+async def protected_endpoint(
+    current_user: Annotated[TokenData, Depends(require_auth)]
+):
+    # Only authenticated users can access
+    return {"message": f"Hello {current_user.username}!"}
+```
+
+#### Getting Current User Information
+
+```python
+async def some_function(current_user: Annotated[TokenData, Depends(require_auth)]):
+    username = current_user.username
+    # Use username for business logic
+```
+
+### Security Considerations
+
+1. **Production Environment**: Always change `JWT_SECRET_KEY` to a strong secret
+2. **HTTPS**: Production environment must use HTTPS
+3. **Token Expiration**: Set reasonable token expiration time
+4. **Password Security**: Use strong passwords and change them regularly
