@@ -19,6 +19,7 @@
               v-model:value="formValue.username"
               placeholder="请输入用户名"
               clearable
+              @keyup.enter="handleEnter"
             >
               <template #prefix>
                 <n-icon><PersonOutline /></n-icon>
@@ -33,6 +34,7 @@
               placeholder="请输入密码"
               clearable
               show-password-on="click"
+              @keyup.enter="handleEnter"
             >
               <template #prefix>
                 <n-icon><LockClosedOutline /></n-icon>
@@ -42,7 +44,6 @@
 
           <n-form-item class="form-btn">
             <n-space vertical :size="24">
-
               <n-button
                 type="primary"
                 size="large"
@@ -112,14 +113,21 @@ const rules = {
   ],
 };
 
+const handleEnter = () => {
+  if (!formValue.username || !formValue.password) {
+    return;
+  }
+  handleSubmit();
+};
+
 // 提交表单
-const handleSubmit = (e: MouseEvent) => {
-  e.preventDefault();
+const handleSubmit = (e?: MouseEvent) => {
+  e?.preventDefault();
 
   formRef.value?.validate(async (errors: any) => {
     if (!errors) {
       loading.value = true;
-      const url = '/api/v1/login'
+      const url = "/api/v1/login";
       const result = await (
         await fetch(url, {
           method: "POST",
@@ -132,19 +140,18 @@ const handleSubmit = (e: MouseEvent) => {
           }),
         })
       ).json();
-      console.log('Login response:', result);
+      console.log("Login response:", result);
       if (result.access_token) {
+        // 模拟登录请求
+        loading.value = false;
         localStorage.setItem("access_token", result.access_token);
-        console.log('Token saved to localStorage:', result.access_token);
-        console.log('Token length:', result.access_token.length);
+        // 跳转到dashboard
+        router.push("/dashboard");
+        console.log("Token saved to localStorage:", result.access_token);
+        console.log("Token length:", result.access_token.length);
       } else {
-        console.error('No access_token in response');
+        console.error("No access_token in response");
       }
-      // 模拟登录请求
-      loading.value = false;
-      message.success("登录成功！");
-      // 跳转到dashboard
-      router.push('/dashboard');
     } else {
       message.error("请检查输入信息");
     }

@@ -10,7 +10,10 @@
       </div>
       <div class="center-section">
         <n-breadcrumb>
-          <n-breadcrumb-item v-for="(item, index) in breadcrumbItems" :key="index">
+          <n-breadcrumb-item
+            v-for="(item, index) in breadcrumbItems"
+            :key="index"
+          >
             {{ item }}
           </n-breadcrumb-item>
         </n-breadcrumb>
@@ -48,7 +51,12 @@
       <!-- 侧边栏 -->
       <div class="sidebar" :class="{ collapsed }">
         <div class="sidebar-header" :class="{ collapsed }">
-          <n-button quaternary size="small" @click="toggleSidebar" class="collapse-btn">
+          <n-button
+            quaternary
+            size="small"
+            @click="toggleSidebar"
+            class="collapse-btn"
+          >
             <template #icon>
               <n-icon>
                 <MenuOutline />
@@ -63,6 +71,7 @@
           :collapsed-width="64"
           :collapsed-icon-size="22"
           :indent="18"
+          @update:value="handleMenuClick"
           class="sidebar-menu"
         />
       </div>
@@ -78,64 +87,84 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h } from 'vue'
-import { useRouter } from 'vue-router'
-import { NIcon } from 'naive-ui'
+import { ref, computed, h } from "vue";
+import { RouterLink, useRouter } from "vue-router";
+import { NIcon } from "naive-ui";
 import {
   NotificationsOutline,
   SettingsOutline,
   LogOutOutline,
   PlayCircleOutline,
   ChatbubbleOutline,
-  HomeOutline,
-  MenuOutline
-} from '@vicons/ionicons5'
-import Playground from './Playground.vue'
+  BusinessOutline,
+  MenuOutline,
+} from "@vicons/ionicons5";
+import Playground from "./Playground.vue";
 
-const router = useRouter()
-const activeKey = ref('playground-chat')
-const collapsed = ref(false)
+const router = useRouter();
+const activeKey = ref("playground-chat");
+const collapsed = ref(false);
 
 // 菜单配置
 const menuOptions = [
   {
-    label: 'PlayGround',
-    key: 'playground',
+    label: "PlayGround",
+    key: "playground",
     icon: renderIcon(PlayCircleOutline),
     children: [
       {
-        label: 'Chat',
-        key: 'playground-chat',
-        icon: renderIcon(ChatbubbleOutline)
-      }
-    ]
-  }
-]
+        label: "Chat",
+        key: "playground-chat",
+        icon: renderIcon(ChatbubbleOutline),
+      },
+    ],
+  },
+  {
+    label: () =>
+      h(
+        RouterLink,
+        {
+          to: {
+            path: "/factory",
+          },
+          target: "_blank",
+        },
+        { default: () => "Factory" }
+      ),
+    key: "factory",
+    icon: renderIcon(BusinessOutline),
+  },
+];
 
+const handleMenuClick = (key) => {
+  if (key === "factory") {
+    activeKey.value = "playground-chat";
+  }
+};
 // 面包屑导航
 const breadcrumbItems = computed(() => {
-  const items = ['PlayGround']
-  if (activeKey.value === 'playground-chat') {
-    items.push('Chat')
+  const items = ["PlayGround"];
+  if (activeKey.value === "playground-chat") {
+    items.push("Chat");
   }
-  return items
-})
+  return items;
+});
 
 // 渲染图标的辅助函数
 function renderIcon(icon: any) {
-  return () => h(NIcon, null, { default: () => h(icon) })
+  return () => h(NIcon, null, { default: () => h(icon) });
 }
 
 // 切换侧边栏
 const toggleSidebar = () => {
-  collapsed.value = !collapsed.value
-}
+  collapsed.value = !collapsed.value;
+};
 
 // 登出功能
 const logout = () => {
-  localStorage.removeItem('access_token')
-  router.push('/')
-}
+  localStorage.removeItem("access_token");
+  router.push("/");
+};
 </script>
 
 <style scoped lang="less">
@@ -238,22 +267,22 @@ const logout = () => {
   }
 }
 
-  .content-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: white;
-    margin: 16px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: margin-left 0.3s ease;
+.content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  margin: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: margin-left 0.3s ease;
 
-    .content-wrapper {
-      flex: 1;
-      overflow: hidden;
-    }
+  .content-wrapper {
+    flex: 1;
+    overflow: hidden;
   }
+}
 
 // 响应式设计
 @media (max-width: 768px) {
