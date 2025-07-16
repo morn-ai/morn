@@ -15,7 +15,6 @@
 <script setup lang="ts">
 import LoginForm from './components/LoginForm.vue'
 
-// 使用亮色主题（你也可以选择 darkTheme 来使用暗色主题）
 const theme = null
 </script>
 

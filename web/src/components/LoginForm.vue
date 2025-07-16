@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <div class="left">
-      <img src="../assets/morn_500.svg" alt="" />
+      <img src="../assets/morn_500.svg" alt="morn logo" />
     </div>
     <div class="right">
       <n-card class="login-card" title="用户登录" :bordered="false" size="huge">
@@ -42,9 +42,6 @@
 
           <n-form-item class="form-btn">
             <n-space vertical :size="24">
-              <!-- <n-checkbox v-model:checked="formValue.rememberMe">
-              记住我
-            </n-checkbox> -->
 
               <n-button
                 type="primary"
@@ -55,15 +52,6 @@
               >
                 登录
               </n-button>
-
-              <!-- <div class="login-links">
-              <n-button text type="primary" size="small">
-                忘记密码？
-              </n-button>
-              <n-button text type="primary" size="small">
-                注册账号
-              </n-button>
-            </div> -->
             </n-space>
           </n-form-item>
         </n-form>
