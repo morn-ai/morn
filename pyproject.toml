@@ -1,5 +1,5 @@
 [project]
-name = "morn-agent"
+name = "morn"
 version = "0.0.1"
 readme = "README.md"
 
@@ -8,14 +8,16 @@ requires-python = ">=3.11"
 dependencies = [
     "fastapi",
     "httpx",
+    "python-jose[cryptography]",
     "sse-starlette",
+    "types-python-jose",
     "uvicorn",
 ]
 
 [project.urls]
-Homepage = "https://github.com/morn-ai/morn-agent"
-Repository = "https://github.com/morn-ai/morn-agent"
-Documentation = "https://github.com/morn-ai/morn-agent#readme"
+Homepage = "https://github.com/morn-ai/morn"
+Repository = "https://github.com/morn-ai/morn"
+Documentation = "https://github.com/morn-ai/morn#readme"
 
 [tool.mypy]
 python_version = "3.11"

@@ -4,16 +4,17 @@ import sys
 import uvicorn
 from fastapi import FastAPI
 
-from app.api.chat import router as chat_router
-
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from app.api.auth import router as auth_router
+from app.api.chat import router as chat_router
 from app.logging_config import configure_logging
 
 configure_logging()
 
 app = FastAPI()
 
+app.include_router(auth_router)
 app.include_router(chat_router)
 
 if __name__ == "__main__":

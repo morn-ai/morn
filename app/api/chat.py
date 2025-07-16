@@ -1,19 +1,24 @@
 import json
 import logging
-from typing import AsyncGenerator
+from typing import Annotated, AsyncGenerator
 
 import httpx
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sse_starlette import EventSourceResponse
 
 from app.config.agent_config import AgentConfig
 from app.schemas.chat import ChatCompletionRequest
+from app.schemas.auth import TokenData
+from app.api.auth import require_auth
 
 router = APIRouter()
 config = AgentConfig()
 
 @router.post("/api/v1/chat/completions")
-async def chat_completion(request: ChatCompletionRequest):
+async def chat_completion(
+    request: ChatCompletionRequest,
+    current_user: Annotated[TokenData, Depends(require_auth)]
+):
     logging.info(f"receive chat request: {request}")
 
     if request.stream:
