@@ -1,0 +1,25 @@
+<svg width="500" height="200" viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg">
+    <rect rx="2" width="500" height="200" fill="transparent" />
+
+    <circle cx="120" cy="114" r="60" fill="#FCB12F" />
+
+    <g transform="translate(120, 114)">
+        <rect x="-5" y="68" width="10" height="35" rx="5" transform="rotate(110)" fill="#FCB12F" />
+        <rect x="-5" y="68" width="10" height="35" rx="5" transform="rotate(145)" fill="#FCB12F" />
+        <rect x="-5" y="68" width="10" height="35" rx="5" transform="rotate(180)" fill="#FCB12F" />
+        <rect x="-5" y="68" width="10" height="35" rx="5" transform="rotate(215)" fill="#FCB12F" />
+        <rect x="-5" y="68" width="10" height="35" rx="5" transform="rotate(250)" fill="#FCB12F" />
+    </g>
+
+    <g transform="translate(120, 100)">
+        <path d="M-80,0Q0,-62.5 80,0Q0,62.5 -80,0Z" transform="rotate(-12) translate(8,54)"
+            fill="#6FAA4A" />
+        <path d="M-80,0Q0,-62.5 80,0Q0,62.5 -80,0Z" transform="rotate(12) translate(-8,55)"
+            fill="#3D7B44" />
+    </g>
+
+    <text x="356" y="144" font-size="100" font-family="Arial, sans-serif" font-weight="bold"
+        text-anchor="middle" fill="#FFFFFF">
+        Morn
+    </text>
+</svg>

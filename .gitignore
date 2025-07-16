@@ -21,6 +21,7 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+uv.lock
 
 # MyPy
 **/.mypy_cache
