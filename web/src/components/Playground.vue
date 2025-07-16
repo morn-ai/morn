@@ -267,7 +267,7 @@ const sendMessage = async () => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #f8f9fa;
+  background-color: white;
 }
 
 .main-content {
@@ -278,7 +278,7 @@ const sendMessage = async () => {
 
 .config-panel {
   width: 300px;
-  background: white;
+  background: #f8f9fa;
   border-right: 1px solid #e1e5e9;
   padding: 24px;
   overflow-y: auto;
@@ -319,7 +319,7 @@ const sendMessage = async () => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: white;
+  background: #f8f9fa;
 
   .chat-container {
     flex: 1;
