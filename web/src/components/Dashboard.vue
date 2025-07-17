@@ -10,7 +10,10 @@
       </div>
       <div class="center-section">
         <n-breadcrumb>
-          <n-breadcrumb-item v-for="(item, index) in breadcrumbItems" :key="index">
+          <n-breadcrumb-item
+            v-for="(item, index) in breadcrumbItems"
+            :key="index"
+          >
             {{ item }}
           </n-breadcrumb-item>
         </n-breadcrumb>
@@ -43,99 +46,104 @@
       </div>
     </div>
 
-    <!-- 主要内容区域 -->
-    <div class="main-content">
-      <!-- 侧边栏 -->
-      <div class="sidebar" :class="{ collapsed }">
-        <div class="sidebar-header" :class="{ collapsed }">
-          <n-button quaternary size="small" @click="toggleSidebar" class="collapse-btn">
-            <template #icon>
-              <n-icon>
-                <MenuOutline />
-              </n-icon>
-            </template>
-          </n-button>
-        </div>
+    <n-layout has-sider>
+      <n-layout-sider
+        bordered
+        collapse-mode="width"
+        :collapsed-width="64"
+        :width="240"
+        :collapsed="collapsed"
+        show-trigger
+        @collapse="collapsed = true"
+        @expand="collapsed = false"
+      >
         <n-menu
           v-model:value="activeKey"
           :options="menuOptions"
           :collapsed="collapsed"
           :collapsed-width="64"
-          :collapsed-icon-size="22"
           :indent="18"
           class="sidebar-menu"
         />
-      </div>
-
-      <!-- 内容区域 -->
-      <div class="content-area">
-        <div class="content-wrapper">
-          <Playground v-if="activeKey === 'playground-chat'" />
+      </n-layout-sider>
+      <n-layout>
+        <!-- 主要内容区域 -->
+        <!-- 内容区域 -->
+        <div class="content-area">
+          <div class="content-wrapper">
+            <KeepAlive>
+              <component :is="rightComponent" />
+            </KeepAlive>
+          </div>
         </div>
-      </div>
-    </div>
+      </n-layout>
+    </n-layout>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, h } from 'vue'
-import { useRouter } from 'vue-router'
-import { NIcon } from 'naive-ui'
+import { ref, computed, h } from "vue";
+import { NIcon } from "naive-ui";
 import {
   NotificationsOutline,
   SettingsOutline,
   LogOutOutline,
   PlayCircleOutline,
   ChatbubbleOutline,
-  HomeOutline,
-  MenuOutline
-} from '@vicons/ionicons5'
-import Playground from './Playground.vue'
+  ChatbubbleEllipsesOutline,
+} from "@vicons/ionicons5";
+import Playground from "./Playground.vue";
+import ChatMax from "./ChatMax.vue";
+import logout from "../common/useLogout";
 
-const router = useRouter()
-const activeKey = ref('playground-chat')
-const collapsed = ref(false)
+const activeKey = ref("playground-chat");
+const collapsed = ref(false);
+
+const rightComponent = computed(() => {
+  return {
+    chat: ChatMax,
+    "playground-chat": Playground,
+  }[activeKey.value];
+});
 
 // 菜单配置
 const menuOptions = [
   {
-    label: 'PlayGround',
-    key: 'playground',
+    label: "Chat",
+    key: "chat",
+    icon: renderIcon(ChatbubbleEllipsesOutline),
+  },
+  {
+    label: "PlayGround",
+    key: "playground",
     icon: renderIcon(PlayCircleOutline),
     children: [
       {
-        label: 'Chat',
-        key: 'playground-chat',
-        icon: renderIcon(ChatbubbleOutline)
-      }
-    ]
-  }
-]
+        label: "Chat",
+        key: "playground-chat",
+        icon: renderIcon(ChatbubbleOutline),
+      },
+    ],
+  },
+];
 
 // 面包屑导航
 const breadcrumbItems = computed(() => {
-  const items = ['PlayGround']
-  if (activeKey.value === 'playground-chat') {
-    items.push('Chat')
-  }
-  return items
-})
+  return {
+    "playground-chat": ["PlayGround", "Chat"],
+    chat: ["Chat"],
+  }[activeKey.value];
+});
 
 // 渲染图标的辅助函数
 function renderIcon(icon: any) {
-  return () => h(NIcon, null, { default: () => h(icon) })
+  return () => h(NIcon, null, { default: () => h(icon) });
 }
 
 // 切换侧边栏
 const toggleSidebar = () => {
-  collapsed.value = !collapsed.value
-}
-
-// 登出功能
-const logout = () => {
-  localStorage.removeItem('access_token')
-  router.push('/')
-}
+  collapsed.value = !collapsed.value;
+};
 </script>
 
 <style scoped lang="less">
@@ -238,22 +246,23 @@ const logout = () => {
   }
 }
 
-  .content-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: white;
-    margin: 16px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: margin-left 0.3s ease;
+.content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: margin-left 0.3s ease;
 
-    .content-wrapper {
-      flex: 1;
-      overflow: hidden;
-    }
+  .content-wrapper {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
   }
+}
 
 // 响应式设计
 @media (max-width: 768px) {
