@@ -32,3 +32,4 @@ class ChatCompletionChunk(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: List[ChatMessage]
+    thread_id: str

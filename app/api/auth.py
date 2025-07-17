@@ -65,7 +65,7 @@ async def login_for_access_token(body: UserLogin):
             access_token=access_token,
             expires_in=config.jwt_access_token_expire_minutes * 60
         )
-    
+
     # Normal JWT authentication
     if body.username == config.morn_admin_username and body.password == config.morn_admin_password:
         access_token_expires = timedelta(minutes=config.jwt_access_token_expire_minutes)

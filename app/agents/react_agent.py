@@ -1,12 +1,13 @@
 import logging
-from typing import List, TypedDict, Annotated
+import uuid
+from typing import List, TypedDict, Annotated, Optional
 
 from langchain_core.messages import BaseMessage, HumanMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
+from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.constants import START
 from langgraph.graph import StateGraph, END
-from langgraph.graph.state import CompiledStateGraph
 
 from app.agents.prompt_loader import load_prompt
 from app.config.agent_config import config
@@ -21,6 +22,7 @@ class MornReActAgent:
     def __init__(self):
         logging.info("Initializing morn Agent with LangGraph")
         self.system_prompt = load_prompt("system_prompt")
+        self.checkpointer = InMemorySaver()
 
         # Initialize LLM
         self.llm = ChatOpenAI(
@@ -30,19 +32,11 @@ class MornReActAgent:
         )
 
         # Create the graph
-        self.workflow = self._create_workflow()
-
-    def _create_workflow(self) -> CompiledStateGraph:
-        """Create LangGraph workflow"""
         workflow = StateGraph(AgentState)
-
         workflow.add_node("agent", self._agent_node)
-
         workflow.add_edge(START, "agent")
-
         workflow.add_edge("agent", END)
-
-        return workflow.compile()
+        self.workflow = workflow.compile(checkpointer=self.checkpointer)
 
     def _agent_node(self, state: AgentState) -> AgentState:
         """Agent node - processes the conversation"""
@@ -70,16 +64,69 @@ class MornReActAgent:
             "messages": new_messages
         }
 
-    def process_message(self, user_input: str) -> str:
-        """Process user input using LangGraph workflow"""
-        # Initialize state
+    def process_message(self, user_input: str, thread_id: Optional[str] = None) -> str:
+        """Process user input using LangGraph workflow with thread support"""
+        # Generate thread_id if not provided
+        if thread_id is None:
+            thread_id = str(uuid.uuid4())
+            logging.info(f"Generated new thread_id: {thread_id}")
+
+        # Initialize state with new message
+        new_message = HumanMessage(content=user_input)
+
+        # Get existing state from checkpointer or create new one
+        try:
+            # Try to get existing thread state
+            existing_state = self.checkpointer.get(thread_id)
+            if existing_state:
+                # Add new message to existing conversation
+                messages = existing_state["messages"] + [new_message]
+                logging.info(f"Continuing conversation in thread {thread_id} with {len(messages)} messages")
+            else:
+                # Start new conversation
+                messages = [new_message]
+                logging.info(f"Starting new conversation in thread {thread_id}")
+        except Exception as e:
+            # If there's any error getting state, start fresh
+            logging.warning(f"Error getting thread state for {thread_id}: {e}. Starting fresh.")
+            messages = [new_message]
+
         state = {
-            "messages": [HumanMessage(content=user_input)],
+            "messages": messages,
         }
 
-        # Run the workflow
-        result = self.workflow.invoke(state)
+        # Run the workflow with thread_id
+        result = self.workflow.invoke(state, config={"configurable": {"thread_id": thread_id}})
 
         # Get the final response
         final_message = result["messages"][-1]
         return final_message.content
+
+    def get_thread_messages(self, thread_id: str) -> List[BaseMessage]:
+        """Get all messages for a specific thread"""
+        try:
+            state = self.checkpointer.get(thread_id)
+            if state:
+                return state["messages"]
+            return []
+        except Exception as e:
+            logging.warning(f"Error getting messages for thread {thread_id}: {e}")
+            return []
+
+    def delete_thread(self, thread_id: str) -> bool:
+        """Delete a thread and its conversation history"""
+        try:
+            self.checkpointer.delete(thread_id)
+            logging.info(f"Deleted thread {thread_id}")
+            return True
+        except Exception as e:
+            logging.error(f"Error deleting thread {thread_id}: {e}")
+            return False
+
+    def list_threads(self) -> List[str]:
+        """List all available thread IDs"""
+        try:
+            return list(self.checkpointer.list())
+        except Exception as e:
+            logging.error(f"Error listing threads: {e}")
+            return []
