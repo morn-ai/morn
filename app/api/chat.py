@@ -1,109 +1,17 @@
 import json
 import logging
-from typing import Annotated, AsyncGenerator
+from datetime import datetime
+from typing import Annotated
 
-import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from sse_starlette import EventSourceResponse
 
 from app.agents.react_agent import MornReActAgent
 from app.api.auth import require_auth
-from app.config.agent_config import config
 from app.schemas.auth import TokenData
-from app.schemas.chat import ChatCompletionRequest, ChatRequest
+from app.schemas.chat import ChatRequest
 
 router = APIRouter()
-
-
-@router.post("/api/v1/chat/completions")
-async def chat_completion(
-        request: ChatCompletionRequest,
-        current_user: Annotated[TokenData, Depends(require_auth)]
-):
-    logging.info(f"receive chat request: {request}")
-
-    if request.stream:
-        return EventSourceResponse(stream_response(request))
-    else:
-        return await non_stream_response(request)
-
-
-async def non_stream_response(request: ChatCompletionRequest) -> dict:
-    async with httpx.AsyncClient() as client:
-        try:
-            response = await client.post(
-                f"{config.openai_api_base}/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {config.openai_api_key}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": config.openai_model,
-                    "messages": [msg.model_dump() for msg in request.messages],
-                    "stream": False
-                },
-                timeout=30.0
-            )
-            response.raise_for_status()
-            return response.json()
-        except httpx.HTTPStatusError as e:
-            logging.error(f"OpenAI API error: {e}")
-            raise HTTPException(status_code=e.response.status_code, detail=str(e))
-        except Exception as e:
-            logging.error(f"Unexpected error: {e}")
-            raise HTTPException(status_code=500, detail="Internal server error")
-
-
-async def stream_response(request: ChatCompletionRequest) -> AsyncGenerator[dict, None]:
-    async with httpx.AsyncClient() as client:
-        try:
-            async with client.stream(
-                    "POST",
-                    f"{config.openai_api_base}/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {config.openai_api_key}",
-                        "Content-Type": "application/json"
-                    },
-                    json={
-                        "model": config.openai_model,
-                        "messages": [msg.model_dump() for msg in request.messages],
-                        "stream": True
-                    },
-                    timeout=30.0
-            ) as response:
-                response.raise_for_status()
-
-                async for line in response.aiter_lines():
-                    if line.startswith("data: "):
-                        data = line[6:]  # Remove "data: " prefix
-                        if data.strip() == "[DONE]":
-                            yield {
-                                "event": "message",
-                                "data": "[DONE]"
-                            }
-                            break
-                        try:
-                            json_data = json.loads(data)
-                            yield {
-                                "event": "message",
-                                "data": json.dumps(json_data)
-                            }
-                        except json.JSONDecodeError:
-                            continue
-
-        except httpx.HTTPStatusError as e:
-            logging.error(f"OpenAI API error: {e}")
-            yield {
-                "event": "error",
-                "data": json.dumps({"error": str(e)})
-            }
-        except Exception as e:
-            logging.error(f"Unexpected error: {e}")
-            yield {
-                "event": "error",
-                "data": json.dumps({"error": "Internal server error"})
-            }
-
 
 agent = MornReActAgent()
 
@@ -123,7 +31,7 @@ async def chat(
             # Get the last message from the request
             if request.messages:
                 last_message = request.messages[-1].content
-                response = agent.process_message(last_message)
+                response = agent.process_message(last_message, thread_id=request.thread_id)
             else:
                 response = "No message provided."
 
@@ -133,7 +41,8 @@ async def chat(
                 "data": json.dumps({
                     "message": response,
                     "username": current_user.username,
-                    "timestamp": "2024-01-01T00:00:00Z"  # You might want to use actual timestamp
+                    "timestamp": datetime.now().isoformat(),
+                    "thread_id": request.thread_id,
                 })
             }
 
@@ -151,3 +60,55 @@ async def chat(
             }
 
     return EventSourceResponse(event_generator())
+
+
+@router.get("/api/v1/threads")
+async def list_threads(
+        current_user: Annotated[TokenData, Depends(require_auth)]
+):
+    """List all available threads for the current user"""
+    try:
+        threads = agent.list_threads()
+        return {"threads": threads}
+    except Exception as e:
+        logging.error(f"Error listing threads: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.get("/api/v1/threads/{thread_id}/messages")
+async def get_thread_messages(
+        thread_id: str,
+        current_user: Annotated[TokenData, Depends(require_auth)]
+):
+    """Get all messages for a specific thread"""
+    try:
+        messages = agent.get_thread_messages(thread_id)
+        # Convert messages to serializable format
+        serialized_messages = []
+        for msg in messages:
+            serialized_messages.append({
+                "type": msg.__class__.__name__,
+                "content": msg.content,
+                "additional_kwargs": msg.additional_kwargs
+            })
+        return {"thread_id": thread_id, "messages": serialized_messages}
+    except Exception as e:
+        logging.error(f"Error getting thread messages: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.delete("/api/v1/threads/{thread_id}")
+async def delete_thread(
+        thread_id: str,
+        current_user: Annotated[TokenData, Depends(require_auth)]
+):
+    """Delete a thread and its conversation history"""
+    try:
+        success = agent.delete_thread(thread_id)
+        if success:
+            return {"message": f"Thread {thread_id} deleted successfully"}
+        else:
+            raise HTTPException(status_code=404, detail="Thread not found")
+    except Exception as e:
+        logging.error(f"Error deleting thread: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
