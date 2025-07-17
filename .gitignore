@@ -29,4 +29,7 @@ uv.lock
 # Ruff
 **/.ruff_cache
 
+# front
+.vite/
+
 app.log
