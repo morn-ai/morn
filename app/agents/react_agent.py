@@ -2,7 +2,7 @@ import logging
 import uuid
 from typing import List, TypedDict, Annotated, Optional
 
-from langchain_core.messages import BaseMessage, HumanMessage
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessageChunk
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import InMemorySaver
@@ -11,7 +11,10 @@ from langgraph.graph import StateGraph, END
 
 from app.agents.prompt_loader import load_prompt
 from app.config.agent_config import config
+from app.logging_config import configure_logging
+from app.schemas.chat import ChatCompletionChunk
 
+configure_logging()
 
 class AgentState(TypedDict):
     """State for the agent"""
@@ -65,15 +68,29 @@ class MornReActAgent:
         }
 
     def process_message(self, user_input: str, thread_id: Optional[str] = None) -> str:
+        state, thread_id = self.get_history_messages(thread_id, user_input)
+
+        # Run the workflow with thread_id
+        result = self.workflow.invoke(state, config={"configurable": {"thread_id": thread_id}})
+
+        # Get the final response
+        final_message = result["messages"][-1]
+        return final_message.content
+
+    async def stream_message(self, user_input: str, thread_id: Optional[str] = None):
+        """Stream the response from the agent"""
+        state, thread_id = self.get_history_messages(thread_id, user_input)
+        async for chunk in self._stream(state, running_config={"configurable": {"thread_id": thread_id}}):
+            yield chunk
+
+    def get_history_messages(self, thread_id, user_input):
         """Process user input using LangGraph workflow with thread support"""
         # Generate thread_id if not provided
         if thread_id is None:
             thread_id = str(uuid.uuid4())
             logging.info(f"Generated new thread_id: {thread_id}")
-
         # Initialize state with new message
         new_message = HumanMessage(content=user_input)
-
         # Get existing state from checkpointer or create new one
         try:
             # Try to get existing thread state
@@ -90,17 +107,29 @@ class MornReActAgent:
             # If there's any error getting state, start fresh
             logging.warning(f"Error getting thread state for {thread_id}: {e}. Starting fresh.")
             messages = [new_message]
-
         state = {
             "messages": messages,
         }
+        return state, thread_id
 
-        # Run the workflow with thread_id
-        result = self.workflow.invoke(state, config={"configurable": {"thread_id": thread_id}})
-
-        # Get the final response
-        final_message = result["messages"][-1]
-        return final_message.content
+    async def _stream(self, state: AgentState, running_config: dict):
+        """Stream the response from the agent"""
+        async for (chunk_or_message, metadata) in self.workflow.astream(input=state, config=running_config, stream_mode="messages"):
+            try:
+                logging.info(f"chunk: {chunk_or_message}")
+                if isinstance(chunk_or_message, AIMessageChunk):
+                    chat_completion_chunk = ChatCompletionChunk(id=str(uuid.uuid4()),
+                                                                model=config.openai_model,
+                                                                choices=[{
+                                                                    "delta": {
+                                                                        "content": chunk_or_message.content
+                                                                    },
+                                                                    "finish_reason": None
+                                                                }],
+                                                                created=0, )
+                    yield chat_completion_chunk.model_dump_json()
+            except Exception as e:
+                logging.error(f"Error processing chunk: {e}")
 
     def get_thread_messages(self, thread_id: str) -> List[BaseMessage]:
         """Get all messages for a specific thread"""

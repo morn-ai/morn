@@ -1,6 +1,5 @@
 import json
 import logging
-from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -14,7 +13,6 @@ from app.schemas.chat import ChatRequest
 router = APIRouter()
 
 agent = MornReActAgent()
-
 
 @router.post("/api/v1/chat")
 async def chat(
@@ -31,20 +29,10 @@ async def chat(
             # Get the last message from the request
             if request.messages:
                 last_message = request.messages[-1].content
-                response = agent.process_message(last_message, thread_id=request.thread_id)
+                async for chunk in agent.stream_message(last_message, thread_id=request.thread_id):
+                    yield chunk
             else:
-                response = "No message provided."
-
-            # Send the response
-            yield {
-                "event": "message",
-                "data": json.dumps({
-                    "message": response,
-                    "username": current_user.username,
-                    "timestamp": datetime.now().isoformat(),
-                    "thread_id": request.thread_id,
-                })
-            }
+                yield { "event": "message", "data": "No message provided."}
 
             # Send completion signal
             yield {
