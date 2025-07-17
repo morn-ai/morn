@@ -19,6 +19,7 @@
               v-model:value="formValue.username"
               placeholder="请输入用户名"
               clearable
+              @keyup.enter="handleEnter"
             >
               <template #prefix>
                 <n-icon><PersonOutline /></n-icon>
@@ -33,6 +34,7 @@
               placeholder="请输入密码"
               clearable
               show-password-on="click"
+              @keyup.enter="handleEnter"
             >
               <template #prefix>
                 <n-icon><LockClosedOutline /></n-icon>
