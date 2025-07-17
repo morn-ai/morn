@@ -48,7 +48,7 @@ class AgentConfig:
         self.morn_host = os.getenv("MORN_HOST", "localhost")
         self.morn_port = int(os.getenv("MORN_PORT", "8000"))
         # auth config
-        self.morn_auth_mode = os.getenv("MORN_AUTH_MODE", "jwt")
+        self.morn_auth_mode = os.getenv("MORN_AUTH_MODE", "none")
         self.morn_admin_username = os.getenv("MORN_ADMIN_USERNAME", "admin")
         self.morn_admin_password = os.getenv("MORN_ADMIN_PASSWORD", "")
         # JWT config
