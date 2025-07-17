@@ -8,7 +8,7 @@ const routes = [
     redirect: "/login",
   },
   {
-    path: "/Login",
+    path: "/login",
     name: "Login",
     component: LoginForm,
   },

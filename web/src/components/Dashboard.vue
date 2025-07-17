@@ -62,6 +62,7 @@
           :options="menuOptions"
           :collapsed="collapsed"
           :collapsed-width="64"
+          :default-expanded-keys="defaultExpandedKeys"
           :indent="18"
           class="sidebar-menu"
         />
@@ -96,8 +97,9 @@ import Playground from "./Playground.vue";
 import ChatMax from "./ChatMax.vue";
 import logout from "../common/useLogout";
 
-const activeKey = ref("playground-chat");
+const activeKey = ref("chat");
 const collapsed = ref(false);
+const defaultExpandedKeys = ref(["playground"]);
 
 const rightComponent = computed(() => {
   return {
