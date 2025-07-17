@@ -116,6 +116,38 @@ async def chat(
     logging.info(f"receive chat request: {request}")
 
     async def event_generator():
-        logging.info("Starting event generator")
+        try:
+            logging.info("Starting event generator")
+
+            # Process the message using our LangGraph agent
+            # Get the last message from the request
+            if request.messages:
+                last_message = request.messages[-1].content
+                response = agent.process_message(last_message)
+            else:
+                response = "No message provided."
+
+            # Send the response
+            yield {
+                "event": "message",
+                "data": json.dumps({
+                    "message": response,
+                    "username": current_user.username,
+                    "timestamp": "2024-01-01T00:00:00Z"  # You might want to use actual timestamp
+                })
+            }
+
+            # Send completion signal
+            yield {
+                "event": "message",
+                "data": "[DONE]"
+            }
+
+        except Exception as e:
+            logging.error(f"Error in chat event generator: {e}")
+            yield {
+                "event": "error",
+                "data": json.dumps({"error": str(e)})
+            }
 
     return EventSourceResponse(event_generator())

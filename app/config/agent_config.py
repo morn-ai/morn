@@ -6,7 +6,7 @@ from typing import Optional
 class AgentConfig:
     _instance: Optional['AgentConfig'] = None
     _initialized: bool
-    
+
     # server config
     morn_host: str
     morn_port: int
@@ -33,17 +33,17 @@ class AgentConfig:
     hugegraph_username: str
     hugegraph_password: str
     hugegraph_graph_name: str
-    
+
     def __new__(cls) -> 'AgentConfig':
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
-    
+
     def __init__(self) -> None:
         if self._initialized:
             return
-        
+
         # server config
         self.morn_host = os.getenv("MORN_HOST", "localhost")
         self.morn_port = int(os.getenv("MORN_PORT", "8000"))
@@ -70,7 +70,7 @@ class AgentConfig:
         self.hugegraph_username = os.getenv("HUGEGRAPH_USERNAME", "admin")
         self.hugegraph_password = os.getenv("HUGEGRAPH_PASSWORD", "")
         self.hugegraph_graph_name = os.getenv("HUGEGRAPH_GRAPH_NAME", "hugegraph")
-        
+
         self._initialized = True
 
 
