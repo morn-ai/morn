@@ -41,7 +41,10 @@ python app/app.py
 
 ## Authentication
 
-This project implements a JWT (JSON Web Token) based authentication system that supports login token acquisition and API access protection.
+This project implements a flexible authentication system that supports two authentication modes:
+
+1. **JWT Mode** (`jwt`): JWT (JSON Web Token) based authentication system that supports login token acquisition and API access protection
+2. **No Auth Mode** (`none`): No authentication required, anyone can access APIs, suitable for development environments or internal systems
 
 ### Configuration
 
@@ -49,6 +52,8 @@ Set the following environment variables:
 
 ```bash
 # Authentication mode (none | jwt)
+# none: No authentication required, anyone can access APIs
+# jwt: JWT authentication required
 MORN_AUTH_MODE=jwt
 
 # Admin credentials
@@ -112,6 +117,20 @@ Request headers:
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
+
+### Authentication Mode Details
+
+#### JWT Mode (Default)
+- Set `MORN_AUTH_MODE=jwt`
+- All APIs require valid JWT tokens
+- Users must login first to get tokens
+- Suitable for production environments
+
+#### No Auth Mode
+- Set `MORN_AUTH_MODE=none`
+- All APIs can be accessed directly without tokens
+- Login API accepts any username and password
+- Suitable for development environments or internal systems
 
 ### Usage in Code
 

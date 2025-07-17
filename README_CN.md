@@ -41,7 +41,10 @@ python app/app.py
 
 ## 认证系统
 
-本项目已实现基于 JWT (JSON Web Token) 的用户认证系统，支持登录获取令牌和 API 访问保护。
+本项目实现了灵活的认证系统，支持两种认证模式：
+
+1. **JWT 模式** (`jwt`): 基于 JWT (JSON Web Token) 的用户认证系统，支持登录获取令牌和 API 访问保护
+2. **无认证模式** (`none`): 无需认证，任何人都可以访问 API，适用于开发环境或内部系统
 
 ### 配置
 
@@ -49,6 +52,8 @@ python app/app.py
 
 ```bash
 # 认证模式 (none | jwt)
+# none: 无需认证，任何人都可以访问 API
+# jwt: 需要 JWT 认证
 MORN_AUTH_MODE=jwt
 
 # 管理员凭据
@@ -112,6 +117,20 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 ```
+
+### 认证模式说明
+
+#### JWT 模式 (默认)
+- 设置 `MORN_AUTH_MODE=jwt`
+- 所有 API 都需要有效的 JWT 令牌
+- 用户必须先登录获取令牌
+- 适用于生产环境
+
+#### 无认证模式
+- 设置 `MORN_AUTH_MODE=none`
+- 所有 API 都可以直接访问，无需令牌
+- 登录 API 会接受任何用户名和密码
+- 适用于开发环境或内部系统
 
 ### 在代码中使用
 
