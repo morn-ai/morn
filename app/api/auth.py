@@ -5,11 +5,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 
-from app.config.agent_config import AgentConfig
+from app.config.agent_config import config
 from app.schemas.auth import Token, UserLogin, TokenData
 
 router = APIRouter()
-config = AgentConfig()
 security = HTTPBearer()
 
 

@@ -12,6 +12,8 @@ RUN useradd --create-home --shell /bin/bash morn && chown -R morn:morn /home/mor
 
 USER morn
 
+RUN pip install --no-cache-dir uv
+
 WORKDIR /home/morn
 
 COPY --chown=morn:morn pyproject.toml ./

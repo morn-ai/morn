@@ -3,7 +3,7 @@
 
 # IDE
 .idea/**
-!.idea/icon.png
+!.idea/icon.*
 .vscode/**
 !.vscode/extensions.json
 **.iml

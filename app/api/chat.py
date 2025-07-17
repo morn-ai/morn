@@ -8,12 +8,11 @@ from sse_starlette import EventSourceResponse
 
 from app.agents.react_agent import MornReActAgent
 from app.api.auth import require_auth
-from app.config.agent_config import AgentConfig
+from app.config.agent_config import config
 from app.schemas.auth import TokenData
 from app.schemas.chat import ChatCompletionRequest, ChatRequest
 
 router = APIRouter()
-config = AgentConfig()
 
 
 @router.post("/api/v1/chat/completions")
