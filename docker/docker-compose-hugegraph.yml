@@ -1,0 +1,37 @@
+version: '3.8'
+
+networks:
+  morn:
+    driver: bridge
+
+services:
+  server:
+    image: hugegraph/hugegraph:latest
+    container_name: server
+    ports:
+      - 8080:8080
+    networks:
+      - morn
+
+  hubble:
+    image: hugegraph/hubble:1.5.0
+    container_name: hubble
+    ports:
+      - 8088:8088
+    networks:
+      - morn
+
+  hugegraph-rag:
+    image: hugegraph/rag
+    container_name: rag
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./hugegraph/.env:/home/work/hugegraph-llm/.env
+    networks:
+      - morn
+    environment:
+      - HUGEGRAPH_HOST=server
+      - HUGEGRAPH_PORT=8080
+    user: root
