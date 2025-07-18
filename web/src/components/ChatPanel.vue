@@ -8,7 +8,7 @@
             <ChatbubbleOutline />
           </n-icon>
         </div>
-        <p class="empty-text">{{ t('chat.noMessages') }}</p>
+        <p class="empty-text">{{ t("chat.noMessages") }}</p>
       </div>
 
       <div v-else class="messages">
@@ -20,7 +20,7 @@
           <div class="message-content">
             <div class="message-header">
               <span class="role-label">{{
-                message.role === "user" ? t('chat.user') : t('chat.assistant')
+                message.role === "user" ? t("chat.user") : t("chat.assistant")
               }}</span>
             </div>
             <div
@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   ChatbubbleOutline,
@@ -102,17 +102,17 @@ const md = new MarkdownIt({
         return hljs.highlight(str, { language: lang }).value;
       } catch (__) {}
     }
-    return ''; // use external default escaping
-  }
+    return ""; // use external default escaping
+  },
 });
 
 // Markdown rendering function
 const renderMarkdown = (content: string): string => {
-  if (!content) return '';
+  if (!content) return "";
   try {
     return md.render(content);
   } catch (error) {
-    console.warn('Markdown rendering error:', error);
+    console.warn("Markdown rendering error:", error);
     return content; // fallback to plain text
   }
 };
@@ -124,19 +124,33 @@ const {
   url,
   systemMessage = "",
   useStream = true,
+  historyMessages = [],
+  thread_id = Date.now(),
 } = defineProps<{
   url: string;
   systemMessage?: String;
   useStream?: boolean;
+  historyMessages?: Array<{ role: "user" | "assistant"; content: string }>;
+  thread_id?: string | number;
 }>();
 const inputMessage = ref("");
-const messages = ref<Array<{ role: "user" | "assistant"; content: string }>>(
-  []
+const messages =
+  ref<Array<{ role: "user" | "assistant"; content: string }>>(historyMessages);
+
+const threadId = ref(thread_id);
+
+watch(
+  () => historyMessages,
+  () => {
+    messages.value = historyMessages;
+  }
 );
-
-
-
-const threadId = ref(Date.now());
+watch(
+  () => thread_id,
+  () => {
+    threadId.value = thread_id;
+  }
+);
 
 // 发送消息
 const sendMessage = async () => {
@@ -298,7 +312,9 @@ const sendMessage = async () => {
     }
     messages.value.push({
       role: "assistant",
-      content: `${t('messages.serverError')} ${error?.message || t('messages.unknownError')}`,
+      content: `${t("messages.serverError")} ${
+        error?.message || t("messages.unknownError")
+      }`,
     });
   }
 };
@@ -404,7 +420,8 @@ const handleClear = () => {
               margin: 8px 0;
             }
 
-            :deep(ul), :deep(ol) {
+            :deep(ul),
+            :deep(ol) {
               margin: 8px 0;
               padding-left: 20px;
             }
@@ -425,7 +442,7 @@ const handleClear = () => {
               background-color: #f1f1f1;
               padding: 2px 4px;
               border-radius: 3px;
-              font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+              font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
               font-size: 0.9em;
               color: #e83e8c;
             }
@@ -470,7 +487,8 @@ const handleClear = () => {
               margin: 12px 0;
               font-size: 0.9em;
 
-              th, td {
+              th,
+              td {
                 border: 1px solid #ddd;
                 padding: 8px 12px;
                 text-align: left;
