@@ -4,7 +4,7 @@
       <img src="../assets/morn_500.svg" alt="morn logo" />
     </div>
     <div class="right">
-      <n-card class="login-card" title="User Login" :bordered="false" size="huge">
+      <n-card class="login-card" :title="t('common.userLogin')" :bordered="false" size="huge">
         <n-form
           ref="formRef"
           :model="formValue"
@@ -14,10 +14,10 @@
           require-mark-placement="right-hanging"
           size="large"
         >
-          <n-form-item label="Username" path="username">
+          <n-form-item :label="t('common.username')" path="username">
             <n-input
               v-model:value="formValue.username"
-              placeholder="Please enter username"
+              :placeholder="t('common.pleaseEnterUsername')"
               clearable
             >
               <template #prefix>
@@ -26,11 +26,11 @@
             </n-input>
           </n-form-item>
 
-          <n-form-item label="Password" path="password">
+          <n-form-item :label="t('common.password')" path="password">
             <n-input
               v-model:value="formValue.password"
               type="password"
-              placeholder="Please enter password"
+              :placeholder="t('common.pleaseEnterPassword')"
               clearable
               show-password-on="click"
             >
@@ -50,7 +50,7 @@
                 :loading="loading"
                 @click="handleSubmit"
               >
-                Login
+                {{ t('common.login') }}
               </n-button>
             </n-space>
           </n-form-item>
@@ -64,10 +64,12 @@
 import { ref, reactive } from "vue";
 import { useMessage } from "naive-ui";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { PersonOutline, LockClosedOutline } from "@vicons/ionicons5";
 
 const message = useMessage();
 const router = useRouter();
+const { t } = useI18n();
 
 // Form reference
 const formRef = ref();
@@ -87,26 +89,26 @@ const rules = {
   username: [
     {
       required: true,
-      message: "Please enter username",
+      message: t('common.usernameRequired'),
       trigger: "blur",
     },
     {
       min: 3,
       max: 20,
-      message: "Username length should be between 3 and 20 characters",
+      message: t('common.usernameLengthError'),
       trigger: "blur",
     },
   ],
   password: [
     {
       required: true,
-      message: "Please enter password",
+      message: t('common.passwordRequired'),
       trigger: "blur",
     },
     {
       min: 6,
       max: 20,
-      message: "Password length should be between 6 and 20 characters",
+      message: t('common.passwordLengthError'),
       trigger: "blur",
     },
   ],
@@ -140,12 +142,12 @@ const handleSubmit = (e: MouseEvent) => {
             localStorage.setItem("access_token", result.access_token);
             console.log('Token saved to localStorage:', result.access_token);
             console.log('Token length:', result.access_token.length);
-            message.success("Login successful!");
+            message.success(t('common.loginSuccessful'));
             // Navigate to dashboard
             router.push('/dashboard');
           } else {
             console.error('No access_token in response');
-            message.error("Login response error");
+            message.error(t('common.loginFailed'));
           }
         } else {
           const errorData = await response.json();
@@ -153,22 +155,22 @@ const handleSubmit = (e: MouseEvent) => {
 
           if (response.status === 429) {
             // Rate limited or account locked
-            message.error(errorData.detail || "Too many login attempts, please try again later");
+            message.error(errorData.detail || t('common.tooManyAttempts'));
           } else if (response.status === 401) {
             // Invalid credentials
-            message.error(errorData.detail || "Invalid username or password");
+            message.error(errorData.detail || t('common.invalidCredentials'));
           } else {
-            message.error(errorData.detail || "Login failed, please try again");
+            message.error(errorData.detail || t('common.loginFailed'));
           }
         }
       } catch (error) {
         console.error('Network error:', error);
-        message.error("Network error, please check your connection");
+        message.error(t('common.networkError'));
       } finally {
         loading.value = false;
       }
     } else {
-      message.error("Please check your input");
+      message.error(t('common.pleaseCheckInput'));
     }
   });
 };

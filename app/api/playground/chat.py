@@ -102,4 +102,4 @@ async def stream_response(request: ChatCompletionRequest) -> AsyncGenerator[dict
             yield {
                 "event": "error",
                 "data": json.dumps({"error": "Internal server error"})
-            } 
+            }

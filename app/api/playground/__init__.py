@@ -8,4 +8,4 @@ playground_router = APIRouter()
 
 # Include all playground sub-routers
 playground_router.include_router(chat_router)
-playground_router.include_router(embeddings_router) 
+playground_router.include_router(embeddings_router)

@@ -34,13 +34,14 @@
               </n-icon>
             </template>
           </n-button>
+          <LanguageSwitcher />
           <n-button quaternary size="small" @click="logout">
             <template #icon>
               <n-icon>
                 <LogOutOutline />
               </n-icon>
             </template>
-            退出登录
+            {{ t('common.logout') }}
           </n-button>
         </n-space>
       </div>
@@ -85,6 +86,7 @@
 <script setup lang="ts">
 import { ref, computed, h } from "vue";
 import { NIcon } from "naive-ui";
+import { useI18n } from "vue-i18n";
 import {
   NotificationsOutline,
   SettingsOutline,
@@ -97,8 +99,10 @@ import {
 import Playground from "./Playground.vue";
 import ChatMax from "./ChatMax.vue";
 import Embeddings from "./Embeddings.vue";
+import LanguageSwitcher from "./LanguageSwitcher.vue";
 import logout from "../common/useLogout";
 
+const { t } = useI18n();
 const activeKey = ref("chat");
 const collapsed = ref(false);
 const defaultExpandedKeys = ref(["playground"]);
@@ -112,37 +116,37 @@ const rightComponent = computed(() => {
 });
 
 // 菜单配置
-const menuOptions = [
+const menuOptions = computed(() => [
   {
-    label: "Chat",
+    label: t('common.chat'),
     key: "chat",
     icon: renderIcon(ChatbubbleEllipsesOutline),
   },
   {
-    label: "PlayGround",
+    label: t('common.playground'),
     key: "playground",
     icon: renderIcon(PlayCircleOutline),
     children: [
       {
-        label: "Chat",
+        label: t('common.chat'),
         key: "playground-chat",
         icon: renderIcon(ChatbubbleOutline),
       },
       {
-        label: "Embeddings",
+        label: t('common.embeddings'),
         key: "playground-embeddings",
         icon: renderIcon(CubeOutline),
       },
     ],
   },
-];
+]);
 
 // 面包屑导航
 const breadcrumbItems = computed(() => {
   return {
-    "playground-chat": ["PlayGround", "Chat"],
-    "playground-embeddings": ["PlayGround", "Embeddings"],
-    chat: ["Chat"],
+    "playground-chat": [t('common.playground'), t('common.chat')],
+    "playground-embeddings": [t('common.playground'), t('common.embeddings')],
+    chat: [t('common.chat')],
   }[activeKey.value];
 });
 
