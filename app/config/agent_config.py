@@ -18,6 +18,11 @@ class AgentConfig:
     jwt_secret_key: str
     jwt_algorithm: str
     jwt_access_token_expire_minutes: int
+    # Brute force protection config
+    max_failed_attempts: int
+    lockout_duration: int
+    max_attempts_per_minute: int
+    failed_attempt_delay: int
     # morn conf config
     morn_conf_dir: Path
     morn_agent_conf_file: Path
@@ -55,6 +60,11 @@ class AgentConfig:
         self.jwt_secret_key = os.getenv("JWT_SECRET_KEY", "")
         self.jwt_algorithm = os.getenv("JWT_ALGORITHM", "HS256")
         self.jwt_access_token_expire_minutes = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "120"))
+        # Brute force protection config
+        self.max_failed_attempts = int(os.getenv("MAX_FAILED_ATTEMPTS", "5"))
+        self.lockout_duration = int(os.getenv("LOCKOUT_DURATION", "300"))
+        self.max_attempts_per_minute = int(os.getenv("MAX_ATTEMPTS_PER_MINUTE", "10"))
+        self.failed_attempt_delay = int(os.getenv("FAILED_ATTEMPT_DELAY", "2"))
         # morn conf config
         self.morn_conf_dir = Path(os.getenv("MORN_CONF_DIR", Path(__file__).parents[2] / "conf"))
         self.morn_agent_conf_file = self.morn_conf_dir / "agent-conf.yaml"

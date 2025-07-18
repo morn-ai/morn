@@ -4,7 +4,7 @@
       <img src="../assets/morn_500.svg" alt="morn logo" />
     </div>
     <div class="right">
-      <n-card class="login-card" title="用户登录" :bordered="false" size="huge">
+      <n-card class="login-card" title="User Login" :bordered="false" size="huge">
         <n-form
           ref="formRef"
           :model="formValue"
@@ -14,10 +14,10 @@
           require-mark-placement="right-hanging"
           size="large"
         >
-          <n-form-item label="用户名" path="username">
+          <n-form-item label="Username" path="username">
             <n-input
               v-model:value="formValue.username"
-              placeholder="请输入用户名"
+              placeholder="Please enter username"
               clearable
             >
               <template #prefix>
@@ -26,11 +26,11 @@
             </n-input>
           </n-form-item>
 
-          <n-form-item label="密码" path="password">
+          <n-form-item label="Password" path="password">
             <n-input
               v-model:value="formValue.password"
               type="password"
-              placeholder="请输入密码"
+              placeholder="Please enter password"
               clearable
               show-password-on="click"
             >
@@ -50,7 +50,7 @@
                 :loading="loading"
                 @click="handleSubmit"
               >
-                登录
+                Login
               </n-button>
             </n-space>
           </n-form-item>
@@ -69,50 +69,50 @@ import { PersonOutline, LockClosedOutline } from "@vicons/ionicons5";
 const message = useMessage();
 const router = useRouter();
 
-// 表单引用
+// Form reference
 const formRef = ref();
 
-// 加载状态
+// Loading state
 const loading = ref(false);
 
-// 表单数据
+// Form data
 const formValue = reactive({
   username: "",
   password: "",
   rememberMe: false,
 });
 
-// 表单验证规则
+// Form validation rules
 const rules = {
   username: [
     {
       required: true,
-      message: "请输入用户名",
+      message: "Please enter username",
       trigger: "blur",
     },
     {
       min: 3,
       max: 20,
-      message: "用户名长度在 3 到 20 个字符",
+      message: "Username length should be between 3 and 20 characters",
       trigger: "blur",
     },
   ],
   password: [
     {
       required: true,
-      message: "请输入密码",
+      message: "Please enter password",
       trigger: "blur",
     },
     {
       min: 6,
       max: 20,
-      message: "密码长度在 6 到 20 个字符",
+      message: "Password length should be between 6 and 20 characters",
       trigger: "blur",
     },
   ],
 };
 
-// 提交表单
+// Submit form
 const handleSubmit = (e: MouseEvent) => {
   e.preventDefault();
 
@@ -120,8 +120,9 @@ const handleSubmit = (e: MouseEvent) => {
     if (!errors) {
       loading.value = true;
       const url = '/api/v1/login'
-      const result = await (
-        await fetch(url, {
+
+      try {
+        const response = await fetch(url, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -130,23 +131,44 @@ const handleSubmit = (e: MouseEvent) => {
             username: formValue.username,
             password: formValue.password,
           }),
-        })
-      ).json();
-      console.log('Login response:', result);
-      if (result.access_token) {
-        localStorage.setItem("access_token", result.access_token);
-        console.log('Token saved to localStorage:', result.access_token);
-        console.log('Token length:', result.access_token.length);
-      } else {
-        console.error('No access_token in response');
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Login response:', result);
+          if (result.access_token) {
+            localStorage.setItem("access_token", result.access_token);
+            console.log('Token saved to localStorage:', result.access_token);
+            console.log('Token length:', result.access_token.length);
+            message.success("Login successful!");
+            // Navigate to dashboard
+            router.push('/dashboard');
+          } else {
+            console.error('No access_token in response');
+            message.error("Login response error");
+          }
+        } else {
+          const errorData = await response.json();
+          console.error('Login error:', errorData);
+
+          if (response.status === 429) {
+            // Rate limited or account locked
+            message.error(errorData.detail || "Too many login attempts, please try again later");
+          } else if (response.status === 401) {
+            // Invalid credentials
+            message.error(errorData.detail || "Invalid username or password");
+          } else {
+            message.error(errorData.detail || "Login failed, please try again");
+          }
+        }
+      } catch (error) {
+        console.error('Network error:', error);
+        message.error("Network error, please check your connection");
+      } finally {
+        loading.value = false;
       }
-      // 模拟登录请求
-      loading.value = false;
-      message.success("登录成功！");
-      // 跳转到dashboard
-      router.push('/dashboard');
     } else {
-      message.error("请检查输入信息");
+      message.error("Please check your input");
     }
   });
 };
