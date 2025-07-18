@@ -92,9 +92,11 @@ import {
   PlayCircleOutline,
   ChatbubbleOutline,
   ChatbubbleEllipsesOutline,
+  CubeOutline,
 } from "@vicons/ionicons5";
 import Playground from "./Playground.vue";
 import ChatMax from "./ChatMax.vue";
+import Embeddings from "./Embeddings.vue";
 import logout from "../common/useLogout";
 
 const activeKey = ref("chat");
@@ -105,6 +107,7 @@ const rightComponent = computed(() => {
   return {
     chat: ChatMax,
     "playground-chat": Playground,
+    "playground-embeddings": Embeddings,
   }[activeKey.value];
 });
 
@@ -125,6 +128,11 @@ const menuOptions = [
         key: "playground-chat",
         icon: renderIcon(ChatbubbleOutline),
       },
+      {
+        label: "Embeddings",
+        key: "playground-embeddings",
+        icon: renderIcon(CubeOutline),
+      },
     ],
   },
 ];
@@ -133,6 +141,7 @@ const menuOptions = [
 const breadcrumbItems = computed(() => {
   return {
     "playground-chat": ["PlayGround", "Chat"],
+    "playground-embeddings": ["PlayGround", "Embeddings"],
     chat: ["Chat"],
   }[activeKey.value];
 });

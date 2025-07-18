@@ -74,6 +74,7 @@ class AgentConfig:
         # OpenAI API config
         self.openai_api_base = os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1")
         self.openai_api_key = os.getenv("OPENAI_API_KEY", "")
+
         # HugeGraph config
         self.hugegraph_host = os.getenv("HUGEGRAPH_HOST", "localhost")
         self.hugegraph_port = int(os.getenv("HUGEGRAPH_PORT", "8080"))

@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from app.api.auth import router as auth_router
 from app.api.chat import router as chat_router
-from app.api.playground import router as playground_router
+from app.api.playground import playground_router
 from app.config.agent_config import config
 from app.logging_config import configure_logging
 
