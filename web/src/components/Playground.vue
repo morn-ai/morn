@@ -6,7 +6,7 @@
       <div class="config-panel">
         <div class="config-section">
           <div class="section-header">
-            <span class="section-title">System Message</span>
+            <span class="section-title">{{ t('playground.systemMessage') }}</span>
             <n-icon class="sparkle-icon">
               <SparklesOutline />
             </n-icon>
@@ -14,7 +14,7 @@
           <n-input
             v-model:value="systemMessage"
             type="textarea"
-            placeholder="Describe desired model behavior (tone, tool usage, response style)"
+            :placeholder="t('playground.systemMessagePlaceholder')"
             :autosize="{ minRows: 8, maxRows: 16 }"
             class="system-message-input"
           />
@@ -22,12 +22,12 @@
 
         <div class="config-section">
           <div class="section-header">
-            <span class="section-title">Settings</span>
+            <span class="section-title">{{ t('playground.settings') }}</span>
           </div>
           <n-space vertical>
             <n-switch v-model:value="useStream" size="small">
-              <template #checked>流式响应</template>
-              <template #unchecked>普通响应</template>
+              <template #checked>{{ t('playground.streamResponse') }}</template>
+              <template #unchecked>{{ t('playground.normalResponse') }}</template>
             </n-switch>
           </n-space>
         </div>
@@ -45,8 +45,11 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { SparklesOutline } from "@vicons/ionicons5";
 import ChatPanel from "./ChatPanel.vue";
+
+const { t } = useI18n();
 
 // 响应式数据
 const systemMessage = ref("");

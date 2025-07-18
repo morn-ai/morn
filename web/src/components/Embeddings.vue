@@ -6,7 +6,7 @@
       <div class="config-panel">
         <div class="config-section">
           <div class="section-header">
-            <span class="section-title">Model Settings</span>
+            <span class="section-title">{{ t('embeddings.modelSettings') }}</span>
             <n-icon class="sparkle-icon">
               <SparklesOutline />
             </n-icon>
@@ -14,19 +14,19 @@
           <n-select
             v-model:value="selectedModel"
             :options="modelOptions"
-            placeholder="Select embedding model"
+            :placeholder="t('embeddings.selectModel')"
             class="model-select"
           />
         </div>
 
         <div class="config-section">
           <div class="section-header">
-            <span class="section-title">Input Text</span>
+            <span class="section-title">{{ t('embeddings.inputText') }}</span>
           </div>
           <n-input
             v-model:value="inputText"
             type="textarea"
-            placeholder="Enter text to generate embeddings (supports single text or multiple texts separated by newlines)"
+            :placeholder="t('embeddings.inputPlaceholder')"
             :autosize="{ minRows: 8, maxRows: 16 }"
             class="input-textarea"
           />
@@ -34,7 +34,7 @@
 
         <div class="config-section">
           <div class="section-header">
-            <span class="section-title">Actions</span>
+            <span class="section-title">{{ t('embeddings.actions') }}</span>
           </div>
           <n-space vertical>
             <n-button
@@ -43,10 +43,10 @@
               @click="generateEmbeddings"
               :disabled="!inputText.trim()"
             >
-              Generate Embeddings
+              {{ t('embeddings.generateEmbedding') }}
             </n-button>
             <n-button @click="clearResults" :disabled="!hasResults">
-              Clear Results
+              {{ t('embeddings.clearResults') }}
             </n-button>
           </n-space>
         </div>
@@ -55,16 +55,16 @@
       <!-- 右侧结果区域 -->
       <div class="results-panel">
         <div class="results-header">
-          <span class="section-title">Results</span>
+          <span class="section-title">{{ t('embeddings.results') }}</span>
           <n-tag v-if="hasResults" type="success" size="small">
             {{ resultCount }} embedding{{ resultCount > 1 ? 's' : '' }} generated
           </n-tag>
         </div>
-        
+
         <div v-if="isLoading" class="loading-container">
           <n-spin size="large">
             <template #description>
-              Generating embeddings...
+              {{ t('embeddings.generating') }}
             </template>
           </n-spin>
         </div>
@@ -89,7 +89,7 @@
                   </n-tag>
                 </div>
               </template>
-              
+
               <div class="embedding-details">
                 <div class="detail-item">
                   <strong>Input:</strong>
@@ -128,7 +128,7 @@
         </div>
 
         <div v-else class="empty-state">
-          <n-empty description="No embeddings generated yet">
+          <n-empty :description="t('embeddings.noResults')">
             <template #icon>
               <n-icon size="64" color="#ccc">
                 <CubeOutline />
@@ -143,10 +143,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { SparklesOutline, CubeOutline } from "@vicons/ionicons5";
 import { useMessage } from "naive-ui";
 
 const message = useMessage();
+const { t } = useI18n();
 
 // 响应式数据
 const selectedModel = ref("BAAI/bge-large-zh-v1.5");
@@ -413,4 +415,4 @@ const copyVector = async (vector: number[]) => {
     border-bottom: 1px solid #e1e5e9;
   }
 }
-</style> 
+</style>

@@ -8,7 +8,7 @@
             <ChatbubbleOutline />
           </n-icon>
         </div>
-        <p class="empty-text">Your conversation will appear here</p>
+        <p class="empty-text">{{ t('chat.noMessages') }}</p>
       </div>
 
       <div v-else class="messages">
@@ -20,7 +20,7 @@
           <div class="message-content">
             <div class="message-header">
               <span class="role-label">{{
-                message.role === "user" ? "User" : "Assistant"
+                message.role === "user" ? t('chat.user') : t('chat.assistant')
               }}</span>
             </div>
             <div
@@ -36,7 +36,7 @@
       <div class="input-wrapper">
         <n-input
           v-model:value="inputMessage"
-          placeholder="Chat with your prompt..."
+          :placeholder="t('chat.typeMessage')"
           class="chat-input"
           size="large"
           @keyup.enter="sendMessage"
@@ -80,6 +80,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   ChatbubbleOutline,
   TrashOutline,
@@ -115,6 +116,8 @@ const renderMarkdown = (content: string): string => {
     return content; // fallback to plain text
   }
 };
+
+const { t } = useI18n();
 
 // 响应式数据
 const {
@@ -295,7 +298,7 @@ const sendMessage = async () => {
     }
     messages.value.push({
       role: "assistant",
-      content: `抱歉，AI服务暂时不可用，请稍后重试。错误信息: ${error?.message || '未知错误'}`,
+      content: `${t('messages.serverError')} ${error?.message || t('messages.unknownError')}`,
     });
   }
 };

@@ -1,4 +1,5 @@
-from typing import List, Optional, Union
+from typing import List, Union
+
 from pydantic import BaseModel
 
 
@@ -22,4 +23,4 @@ class EmbeddingUsage(BaseModel):
 class EmbeddingResponse(BaseModel):
     model: str
     data: List[EmbeddingData]
-    usage: EmbeddingUsage 
+    usage: EmbeddingUsage
