@@ -64,6 +64,12 @@ MORN_ADMIN_PASSWORD=your_password
 JWT_SECRET_KEY=your-secret-key-change-in-production
 JWT_ALGORITHM=HS256
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES=120
+
+# 防暴力破解配置
+MAX_FAILED_ATTEMPTS=5
+LOCKOUT_DURATION=300
+MAX_ATTEMPTS_PER_MINUTE=10
+FAILED_ATTEMPT_DELAY=2
 ```
 
 ### API 端点
@@ -166,3 +172,42 @@ async def some_function(current_user: Annotated[TokenData, Depends(require_auth)
 2. **HTTPS**：生产环境必须使用 HTTPS
 3. **令牌过期**：设置合理的令牌过期时间
 4. **密码安全**：使用强密码并定期更换
+5. **防暴力破解**：系统内置防暴力破解保护机制
+
+### 防暴力破解保护
+
+系统包含全面的防暴力破解保护机制：
+
+- **失败尝试跟踪**：按IP地址跟踪失败的登录尝试
+- **账户锁定**：超过最大失败尝试次数后临时锁定账户
+- **频率限制**：限制每个IP地址每分钟的登录尝试次数
+- **延迟响应**：失败尝试后增加延迟，提高攻击成本
+- **自动清理**：定期清理旧记录，防止内存泄漏
+
+#### 配置选项
+
+- `MAX_FAILED_ATTEMPTS`：锁定前的最大失败尝试次数（默认：5）
+- `LOCKOUT_DURATION`：锁定持续时间（秒）（默认：300 = 5分钟）
+- `MAX_ATTEMPTS_PER_MINUTE`：每个IP每分钟最大尝试次数（默认：10）
+- `FAILED_ATTEMPT_DELAY`：失败尝试后的延迟时间（秒）（默认：2）
+
+#### 安全状态API
+
+您可以检查当前IP地址的安全状态：
+
+```bash
+GET /api/v1/security/status
+```
+
+响应：
+```json
+{
+  "ip_address": "127.0.0.1",
+  "is_locked": false,
+  "is_rate_limited": false,
+  "failed_attempts": 0,
+  "remaining_attempts": 5,
+  "lockout_remaining": null,
+  "recent_attempts_count": 0
+}
+```

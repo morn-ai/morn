@@ -64,6 +64,12 @@ MORN_ADMIN_PASSWORD=your_password
 JWT_SECRET_KEY=your-secret-key-change-in-production
 JWT_ALGORITHM=HS256
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES=120
+
+# Brute force protection configuration
+MAX_FAILED_ATTEMPTS=5
+LOCKOUT_DURATION=300
+MAX_ATTEMPTS_PER_MINUTE=10
+FAILED_ATTEMPT_DELAY=2
 ```
 
 ### API Endpoints
@@ -166,3 +172,42 @@ async def some_function(current_user: Annotated[TokenData, Depends(require_auth)
 2. **HTTPS**: Production environment must use HTTPS
 3. **Token Expiration**: Set reasonable token expiration time
 4. **Password Security**: Use strong passwords and change them regularly
+5. **Brute Force Protection**: The system includes built-in protection against brute force attacks
+
+### Brute Force Protection
+
+The system includes comprehensive protection against brute force attacks:
+
+- **Failed Attempt Tracking**: Tracks failed login attempts per IP address
+- **Account Lockout**: Temporarily locks accounts after exceeding maximum failed attempts
+- **Rate Limiting**: Limits login attempts per minute per IP address
+- **Delayed Response**: Adds delay after failed attempts to increase attack cost
+- **Automatic Cleanup**: Periodically cleans up old records to prevent memory leaks
+
+#### Configuration Options
+
+- `MAX_FAILED_ATTEMPTS`: Maximum failed attempts before lockout (default: 5)
+- `LOCKOUT_DURATION`: Lockout duration in seconds (default: 300 = 5 minutes)
+- `MAX_ATTEMPTS_PER_MINUTE`: Maximum attempts per minute per IP (default: 10)
+- `FAILED_ATTEMPT_DELAY`: Delay in seconds after failed attempt (default: 2)
+
+#### Security Status API
+
+You can check the security status for your IP address:
+
+```bash
+GET /api/v1/security/status
+```
+
+Response:
+```json
+{
+  "ip_address": "127.0.0.1",
+  "is_locked": false,
+  "is_rate_limited": false,
+  "failed_attempts": 0,
+  "remaining_attempts": 5,
+  "lockout_remaining": null,
+  "recent_attempts_count": 0
+}
+```
