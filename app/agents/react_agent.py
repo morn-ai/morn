@@ -67,37 +67,31 @@ class MornReActAgent:
             "messages": new_messages
         }
 
-    def process_message(self, user_input: str, thread_id: Optional[str] = None) -> str:
-        state, thread_id = self.get_history_messages(thread_id, user_input)
-
-        # Run the workflow with thread_id
-        result = self.workflow.invoke(state, config={"configurable": {"thread_id": thread_id}})
-
-        # Get the final response
-        final_message = result["messages"][-1]
-        return final_message.content
 
     async def stream_message(self, user_input: str, thread_id: Optional[str] = None):
         """Stream the response from the agent"""
-        state, thread_id = self.get_history_messages(thread_id, user_input)
-        async for chunk in self._stream(state, running_config={"configurable": {"thread_id": thread_id}}):
+        running_config = {"configurable": {"thread_id": thread_id}}
+        state, thread_id = self.get_history_messages(running_config, user_input)
+        async for chunk in self._stream(state, running_config=running_config):
             yield chunk
 
-    def get_history_messages(self, thread_id, user_input):
+    def get_history_messages(self, running_config, user_input):
         """Process user input using LangGraph workflow with thread support"""
         # Generate thread_id if not provided
+        thread_id = running_config["configurable"]["thread_id"]
         if thread_id is None:
             thread_id = str(uuid.uuid4())
+            running_config["configurable"]["thread_id"] = thread_id
             logging.info(f"Generated new thread_id: {thread_id}")
         # Initialize state with new message
         new_message = HumanMessage(content=user_input)
         # Get existing state from checkpointer or create new one
         try:
             # Try to get existing thread state
-            existing_state = self.checkpointer.get(thread_id)
+            existing_state = self.checkpointer.get(running_config)
             if existing_state:
                 # Add new message to existing conversation
-                messages = existing_state["messages"] + [new_message]
+                messages = existing_state["channel_values"]["messages"] + [new_message]
                 logging.info(f"Continuing conversation in thread {thread_id} with {len(messages)} messages")
             else:
                 # Start new conversation
