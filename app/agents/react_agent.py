@@ -1,6 +1,6 @@
 import logging
 import uuid
-from typing import List, TypedDict, Annotated, Optional, Any
+from typing import List, TypedDict, Annotated, Optional
 
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessageChunk
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder

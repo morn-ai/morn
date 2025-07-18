@@ -23,7 +23,10 @@
                 message.role === "user" ? "User" : "Assistant"
               }}</span>
             </div>
-            <div class="message-text">{{ message.content }}</div>
+            <div
+              class="message-text"
+              v-html="renderMarkdown(message.content)"
+            ></div>
           </div>
         </div>
       </div>
@@ -76,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import {
   ChatbubbleOutline,
   TrashOutline,
@@ -84,6 +87,34 @@ import {
 } from "@vicons/ionicons5";
 import { useRouter } from "vue-router";
 import logout from "../common/useLogout";
+import MarkdownIt from "markdown-it";
+import hljs from "highlight.js";
+
+// Initialize markdown renderer
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return hljs.highlight(str, { language: lang }).value;
+      } catch (__) {}
+    }
+    return ''; // use external default escaping
+  }
+});
+
+// Markdown rendering function
+const renderMarkdown = (content: string): string => {
+  if (!content) return '';
+  try {
+    return md.render(content);
+  } catch (error) {
+    console.warn('Markdown rendering error:', error);
+    return content; // fallback to plain text
+  }
+};
 
 // 响应式数据
 const {
@@ -99,6 +130,8 @@ const inputMessage = ref("");
 const messages = ref<Array<{ role: "user" | "assistant"; content: string }>>(
   []
 );
+
+
 
 const threadId = ref(Date.now());
 
@@ -251,7 +284,7 @@ const sendMessage = async () => {
         throw new Error("Invalid response format");
       }
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("API调用失败:", error);
     // 如果调用失败，移除空的assistant消息
     if (
@@ -262,7 +295,7 @@ const sendMessage = async () => {
     }
     messages.value.push({
       role: "assistant",
-      content: `抱歉，AI服务暂时不可用，请稍后重试。错误信息: ${error.message}`,
+      content: `抱歉，AI服务暂时不可用，请稍后重试。错误信息: ${error?.message || '未知错误'}`,
     });
   }
 };
@@ -341,6 +374,120 @@ const handleClear = () => {
             font-size: 14px;
             line-height: 1.6;
             color: #1a1a1a;
+
+            // Markdown styles
+            :deep(h1) {
+              font-size: 1.5em;
+              font-weight: bold;
+              margin: 16px 0 8px 0;
+              color: #1a1a1a;
+            }
+
+            :deep(h2) {
+              font-size: 1.3em;
+              font-weight: bold;
+              margin: 14px 0 6px 0;
+              color: #1a1a1a;
+            }
+
+            :deep(h3) {
+              font-size: 1.1em;
+              font-weight: bold;
+              margin: 12px 0 4px 0;
+              color: #1a1a1a;
+            }
+
+            :deep(p) {
+              margin: 8px 0;
+            }
+
+            :deep(ul), :deep(ol) {
+              margin: 8px 0;
+              padding-left: 20px;
+            }
+
+            :deep(li) {
+              margin: 4px 0;
+            }
+
+            :deep(blockquote) {
+              border-left: 4px solid #ddd;
+              margin: 8px 0;
+              padding-left: 12px;
+              color: #666;
+              font-style: italic;
+            }
+
+            :deep(code) {
+              background-color: #f1f1f1;
+              padding: 2px 4px;
+              border-radius: 3px;
+              font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+              font-size: 0.9em;
+              color: #e83e8c;
+            }
+
+            :deep(pre) {
+              background-color: #f8f9fa;
+              border: 1px solid #e9ecef;
+              border-radius: 6px;
+              padding: 12px;
+              margin: 12px 0;
+              overflow-x: auto;
+
+              code {
+                background-color: transparent;
+                padding: 0;
+                color: #333;
+                font-size: 0.9em;
+                line-height: 1.4;
+              }
+            }
+
+            :deep(a) {
+              color: #1890ff;
+              text-decoration: none;
+
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+
+            :deep(strong) {
+              font-weight: bold;
+            }
+
+            :deep(em) {
+              font-style: italic;
+            }
+
+            :deep(table) {
+              border-collapse: collapse;
+              width: 100%;
+              margin: 12px 0;
+              font-size: 0.9em;
+
+              th, td {
+                border: 1px solid #ddd;
+                padding: 8px 12px;
+                text-align: left;
+              }
+
+              th {
+                background-color: #f8f9fa;
+                font-weight: bold;
+              }
+
+              tr:nth-child(even) {
+                background-color: #f8f9fa;
+              }
+            }
+
+            :deep(hr) {
+              border: none;
+              border-top: 1px solid #ddd;
+              margin: 16px 0;
+            }
           }
         }
       }
