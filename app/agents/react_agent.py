@@ -1,10 +1,11 @@
 import logging
 import uuid
-from typing import List, TypedDict, Annotated, Optional
+from typing import List, TypedDict, Annotated, Optional, Any
 
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessageChunk
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
+from langgraph.checkpoint.base import CheckpointTuple
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.constants import START
 from langgraph.graph import StateGraph, END
@@ -146,10 +147,10 @@ class MornReActAgent:
             logging.error(f"Error deleting thread {thread_id}: {e}")
             return False
 
-    def list_threads(self) -> List[str]:
+    def list_threads(self) -> list[CheckpointTuple]:
         """List all available thread IDs"""
         try:
-            return list(self.checkpointer.list())
+            return list(self.checkpointer.list(config=None))
         except Exception as e:
             logging.error(f"Error listing threads: {e}")
             return []
