@@ -24,7 +24,7 @@
     "@vitejs/plugin-vue": "^5.2.4",
     "less": "^4.3.0",
     "typescript": "^5.8.3",
-    "vite": "^5.4.19",
+    "vite": "^7.0.5",
     "vue-tsc": "^3.0.1"
   }
 }

@@ -17,6 +17,7 @@ RUN pip install --no-cache-dir uv
 WORKDIR /home/morn
 
 COPY --chown=morn:morn pyproject.toml ./
+COPY --chown=morn:morn README.md ./
 COPY --chown=morn:morn app/ ./app/
 COPY --chown=morn:morn conf/ ./conf/
 
